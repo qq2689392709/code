@@ -1,0 +1,154 @@
+
+{% extends  'web/base_main.html' %}
+
+{% block ticle %}
+    天天生鲜-商品详情
+{% endblock %}
+
+{% block content %}
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="{% url 'order:user_center_info' %}" class="active">· 个人信息</a></li>
+				<li><a href="{% url 'order:user_center_order' %}">· 全部订单</a></li>
+				<li><a href="{% url 'order:user_center_site' %}">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div class="right_content clearfix">
+				<div class="info_con clearfix">
+				<h3 class="common_title2">基本信息</h3>
+						<ul class="user_info_list">
+							<li><span>用户名：</span>
+                                {{ user_resses.signer_name }}
+                            </li>
+							<li><span>联系方式：</span>
+								{% if user_resses.signer_mobile %}
+                                    {{ user_resses.signer_mobile }}
+                                {% else %}
+                                    暂无
+                                {% endif %}
+							</li>
+							<li><span>联系地址：</span>
+                                {% if user_resses.address %}
+                                    {{ user_resses.address }}
+                                {% else %}
+                                    暂无
+                                {% endif %}
+                            </li>
+                        </ul>
+				</div>
+
+                <div>
+                    <h3 class="common_title2">用户管理</h3>
+                        <ul class="user_info_list1">
+                            <li>
+                                <input type="button" value="修改密码" class="info_submit1" onclick="on()">
+                            </li>
+                        </ul>
+                </div>
+
+                <h3 class="common_title2">最近浏览</h3>
+				<div class="has_view_list">
+					<ul class="goods_type_list clearfix">
+                        {% for goods in goods_list %}
+                            <li>
+                                <a href="/goods/goods_detail/{{ goods.id }}/"><img src="{{ goods.goods_front_image }}"></a>
+                                <h4><a href="detail.html">{{ goods.name }}</a></h4>
+                                <div class="operate">
+                                    <span class="prize">￥{{ goods.shop_price }}</span>
+                                    <span class="unit">{{ goods.shop_price }}/{{ goods.market_price }}g</span>
+                                    <a onclick="add_cart({{ goods.id }});" class="add_goods" title="加入购物车"></a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+		    </div>
+		</div>
+	</div>
+
+
+    <div id="Model" style="display: none">
+        <div class="site_con" style="width: 445px;height: 200px; position:fixed;top: 30%; left: 35%; box-shadow:0px 0px 3px #233;">
+            <div class="form_group">
+                <label>原始密码：</label>
+                <input type="text" name="password" class="pwd">
+                {#错误提示#}
+                <div class="user_error" style="display: none;left: 100px" >测试</div>
+            </div>
+            <div class="form_group">
+                <label>新密码：</label>
+                <input type="text" name="password1" class="pwd1">
+            </div>
+            <div class="form_group">
+                <label>确认密码：</label>
+                <input type="text" name="password2" class="pwd2">
+            </div>
+
+            <input type="button" name="" value="关闭" class="info_submit" onclick="off()">
+            <input type="submit" name="" value="确认修改" class="info_submit" onclick="xgmm()">
+        </div>
+    </div>
+    {#弹窗div#}
+    <div class="popup_con">
+        <div class="popup">
+            <p>修改成功</p>
+        </div>
+
+        <div class="mask"></div>
+    </div>
+    {% csrf_token %}
+    <script>
+
+        {#显示新增地址div#}
+
+        function on() {
+            $('#Model').css({"display": "inline"})
+        }
+
+        {#关闭新增地址div#}
+
+        function off() {
+            $('#Model').css({"display": "none"})
+        }
+
+        {#修改密码#}
+        function xgmm() {
+            var pwd = $('.pwd').val();
+            var pwd1 = $('.pwd1').val();
+            var pwd2 = $('.pwd2').val();
+
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+                url: '/order/user_change_password/',
+                type: 'post',
+                data: {'pwd': pwd, 'pwd1': pwd1, 'pwd2': pwd2},
+                datatype: 'json',
+                headers: {'X-CSRFToken': csrf},
+                success: function (data) {
+                    if (data.code == 200) {
+                        {#修改成功弹窗#}
+                        $('.popup_con').fadeIn('fast', function() {
+                            setTimeout(function(){
+                                $('.popup_con').fadeOut('fast',function(){
+                                });
+                            },500)
+
+                        });
+                        {#关闭界面#}
+                        off()
+                    }else {
+                       console.log(data.data)
+                        $('.user_error').css({"display": "inline"})
+                        $('.user_error').text(data.data)
+                    }
+                }
+            })
+        }
+
+
+
+    </script>
+
+{% endblock %}

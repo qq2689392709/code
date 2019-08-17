@@ -1,0 +1,95 @@
+
+{% extends  'web/base_main.html' %}
+
+{% block ticle %}
+    天天生鲜-首页
+{% endblock %}
+
+{% block extJs %}
+    {{ block.super }}
+    {% load static %}
+	<script type="text/javascript" src="{% static 'web/js/jquery-ui.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'web/js/slide.js' %}"></script>
+
+{% endblock %}
+
+
+{% block content %}
+    {% load static %}
+
+	<div class="navbar_con">
+		<div class="navbar">
+			<h1 class="fl">全部商品分类</h1>
+			<ul class="navlist fl">
+				<li><a href="{% url 'user:index' %}">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="{% url 'goods:list' 0 0 1%}">全部商品</a></li>
+				<li class="interval">|</li>
+				<li><a href=""></a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="center_con clearfix">
+		<ul class="subnav fl">
+            <li><a href="{% url 'goods:list' 0 1 1 %}" class="fruit">新鲜水果</a></li>
+            <li><a href="{% url 'goods:list' 0 2 1 %}" class="seafood">海鲜水产</a></li>
+            <li><a href="{% url 'goods:list' 0 3 1 %}" class="meet">猪牛羊肉</a></li>
+            <li><a href="{% url 'goods:list' 0 4 1 %}" class="egg">禽类蛋品</a></li>
+            <li><a href="{% url 'goods:list' 0 5 1 %}" class="vegetables">新鲜蔬菜</a></li>
+            <li><a href="{% url 'goods:list' 0 6 1 %}" class="ice">速冻食品</a></li>
+		</ul>
+		<div class="slide fl">
+			<ul class="slide_pics">
+				<li><img src="{% static 'web/images/slide.jpg' %}" alt="幻灯片"></li>
+				<li><img src="{% static 'web/images/slide02.jpg' %}" alt="幻灯片"></li>
+				<li><img src="{% static 'web/images/slide03.jpg' %}" alt="幻灯片"></li>
+				<li><img src="{% static 'web/images/slide04.jpg' %}" alt="幻灯片"></li>
+			</ul>
+			<div class="prev"></div>
+			<div class="next"></div>
+			<ul class="points"></ul>
+		</div>
+		<div class="adv fl">
+			<a href="#"><img src="{% static 'web/images/adv01.jpg' %}"></a>
+			<a href="#"><img src="{% static 'web/images/adv02.jpg' %}"></a>
+		</div>
+	</div>
+
+    {% for k, type in goodstype.items %}
+        <div class="list_model">
+            <div class="list_title clearfix">
+                <h3 class="fl" id="model0{{ type.2.category_type }}">
+                    {{ type.2.get_category_type_display }}
+                </h3>
+                <div class="subtitle fl">
+                    <span>|</span>
+
+                    {% for i in type.1 %}
+                        {# 限制显示单个长度#}
+                        <a href="{% url 'goods:goods_detail' i.id %}" class="goods_more">{{ i.name|slice:'5' }}</a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'goods:list' 0 type.2.category_type 1 %}" class="goods_more fr" id="fruit_more">查看更多 ></a>
+            </div>
+
+            <div class="goods_con clearfix">
+                <div class="goods_banner fl">
+                    <a href="{% url 'goods:list' 0 type.2.category_type 1 %}">
+                        <img src="{{ type.2.category_front_image }}">
+                    </a>
+                </div>
+                <ul class="goods_list fl ">
+                    {% for good in type.0 %}
+                        <li>
+                            <h4><a href="">{{ good.name }}</a></h4>
+                            <a href="{% url 'goods:goods_detail' good.id %}"><img src="{{ good.goods_front_image }}"></a>
+                            <div class="prize">¥ {{ good.shop_price }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

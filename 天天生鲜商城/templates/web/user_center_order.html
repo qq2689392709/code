@@ -1,0 +1,88 @@
+
+
+{% extends  'web/base_main.html' %}
+
+{% block ticle %}
+    天天生鲜-商品详情
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="{% url 'order:user_center_info' %}">· 个人信息</a></li>
+				<li><a href="{% url 'order:user_center_order' %}" class="active">· 全部订单</a></li>
+				<li><a href="{% url 'order:user_center_site' %}">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div class="right_content clearfix">
+            <h3 class="common_title2">全部订单</h3>
+
+        {# [{对象:[商品详情]},{对象:[商品详情]}] #}
+        {% for goods in dindan %}
+            {# {对象:[商品详情]} #}
+            {% for dindan,order_goods in goods.items %}
+				<ul class="order_list_th w978 clearfix">
+					<li class="col01">{{ dindan.add_time | date:'Y-m-d h:m:s' }}</li>
+					<li class="col02">订单号：{{ dindan.order_sn }}</li>
+					<li class="col02 stress">
+                    {% for num in order_status %}
+                        {% if dindan.pay_status == num.0%}
+                            {{ num.1 }}
+                        {% endif %}
+                    {% endfor %}
+                    </li>
+				</ul>
+
+				<table class="order_list_table w980">
+					<tbody>
+						<tr>
+							<td width="55%">
+                                {% for good in order_goods %}
+                                    <ul class="order_goods_list clearfix">
+                                        <li class="col01"><img src="{{ good.goods_front_image }}"></li>
+                                        <li class="col02">{{ good.name }}<em>{{ good.shop_price }}元/{{ good.market_price }}g</em></li>
+                                        <li class="col03">{{ good.goods_nums }}</li>
+                                        <li class="col04">{{ good.goods_sum }}元</li>
+                                    </ul>
+                                {% endfor %}
+							</td>
+							<td width="15%">{{ dindan.order_mount }}元</td>
+							<td width="15%">
+                                {% for num in order_status %}
+                                    {% if dindan.pay_status == num.0%}
+                                        {% if num.1 == '待支付'%}
+                                            待付款
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+
+                            </td>
+							<td width="15%">
+                                <a href="#" class="oper_btn">去付款</a>
+
+                            </td>
+						</tr>
+					</tbody>
+				</table>
+
+            {% endfor %}
+        {% endfor %}
+
+				<div class="pagenation">
+                    {% if pages.has_previous %}
+					    <a href="{% url 'order:user_center_order' %}?page={{ pages.previous_page_number }}"><上一页</a>
+                    {% endif %}
+                    {% for i in pages.paginator.page_range %}
+					    <a href="{% url 'order:user_center_order' %}?page={{ i }}">{{ i }}</a>
+                    {% endfor %}
+                    {% if pages.has_next %}
+					    <a href="{% url 'order:user_center_order' %}?page={{ pages.next_page_number }}">下一页></a>
+                    {% endif %}
+				</div>
+		</div>
+	</div>
+
+{% endblock %}

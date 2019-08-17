@@ -1,0 +1,265 @@
+{% extends  'web/base_main.html' %}
+
+{% block ticle %}
+    天天生鲜-商品详情
+{% endblock %}
+
+{% block content %}
+
+    <div class="total_count">全部商品<em>0</em>件</div>
+    <ul class="cart_list_th clearfix">
+        <li class="col01">商品名称</li>
+        <li class="col02">商品单位</li>
+        <li class="col03">商品价格</li>
+        <li class="col04">数量</li>
+        <li class="col05">小计</li>
+        <li class="col06">操作</li>
+    </ul>
+    {% csrf_token %}
+    {% for good in carts %}
+        <ul class="cart_list_td clearfix" id="{{ good.id }}">
+            <li class="col01"><input onchange="total()" type="checkbox" name="" class="xuan" checked></li>
+            <li class="col02"><a href="/goods/goods_detail/{{ good.id }}/"><img src="{{ good.goods_front_image }}"></a>
+            </li>
+            <li class="col03">{{ good.name }}<br><em>{{ good.shop_price }}元/{{ good.market_price }}g</em></li>
+            <li class="col04">{{ good.market_price }}g</li>
+            <li class="col05 price">{{ good.shop_price }}元</li>
+            <li class="col06">
+                <div class="num_add">
+                    <a href="javascript:;" class="add fl"
+                       onclick="add_goods({{ good.id }},{{ good.shop_price }})">+</a>
+                    <input type="text" id="con_{{ good.id }}" class="num_show_{{ good.id }} fl"
+                           value="{{ good.num }}" onblur="change_session_goods({{ good.id }},parseInt($('.num_show_' + {{ good.id }}).val()))">
+                    <a href="javascript:;" class="minus fl"
+                       onclick="sub_goods({{ good.id }},{{ good.shop_price }})">-</a>
+                </div>
+            </li>
+            <li class="col07" id="co_{{ good.id }}">{{ good.shop_price }}元
+            </li>
+            <li class="col08"><a class="del_btn">删除</a></li>
+            <li class="ku{{ good.id }}" style="display:none;">{{ good.goods_nums }}</li>
+        </ul>
+    {% endfor %}
+
+    <ul class="settlements">
+        <li class="col01">
+            <input class="quan" type="checkbox" name="" onchange="quanxuan(this)" checked >
+        </li>
+        <li class="col02">全选</li>
+        <li class="col03">合计(不含运费)：<span>¥</span><em class="total_goods_price">0</em><br>共计<b>0</b>件商品</li>
+        <li class="col04"><a onclick="jieshuan()">去结算</a></li>
+    </ul>
+
+    <script type="text/javascript">
+
+
+        {#数量增加#}
+        function add_goods(id, price) {
+            {#获取隐藏的库存属性#}
+            var kucun = $('.ku' + id).html();
+
+            var goods_num = $('.num_show_' + id).val();
+
+            if (parseInt(goods_num) < kucun) {
+
+                $('.num_show_' + id).val(parseInt(goods_num) + 1);
+
+                {#小计#}
+                var goods_num1 = $('.num_show_' + id).val();
+                var shop_price = goods_num1 * price;
+                $('#co_' + id).html(parseFloat(shop_price).toFixed(1) + '元');
+
+            } else {
+                alert('库存不足')
+            }
+
+            {#修改seeion的数据#}
+            change_session_goods(id, parseInt(goods_num1));
+            {#时时结算#}
+            total()
+        }
+
+
+        {#数量减少#}
+        function sub_goods(id, price) {
+            var kucun = $('.ku' + id).html();
+            var goods_num = $('.num_show_' + id).val();
+
+            {#最少数量为1#}
+            if (parseInt(goods_num) > 1) {
+
+                $('.num_show_' + id).val(parseInt(goods_num) - 1);
+
+                {#小计#}
+                var goods_num1 = $('.num_show_' + id).val();
+                var shop_price = goods_num1 * price;
+                $('#co_' + id).html(parseFloat(shop_price).toFixed(1) + '元');
+            } else {
+                alert('最低数量1')
+            }
+            {#修改seeion的数据#}
+            change_session_goods(id, parseInt(goods_num1));
+            {#时时结算#}
+            total()
+        }
+
+
+        {#修改数量#}
+        function change_session_goods(goods_id, goods_num) {
+            {#获取csrf_token#}
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+                url: '/cart/change_session_goods/',
+                type: 'POST',
+                data: {'goods_id': goods_id, 'goods_num': goods_num},
+                dataType: 'json',
+                headers: {'X-CSRFToken': csrf}
+            })
+
+        }
+
+
+        {#商品全选#}
+
+        function quanxuan(data) {
+            var xuan = data.checked;
+            var quan = document.getElementsByClassName("xuan");
+
+            for (var i in quan) {
+                quan[i].checked = xuan;
+            }
+            {#时时结算#}
+            total()
+
+        }
+
+        {#自动加载小计#}
+        $(function () {
+            var price = $('.price');        {# 商品单价 #}
+            var count = $('[id^=con_]');    {# 模糊匹配 数量 #}
+            var Col07 = $('[id^=co_]');     {# 模糊匹配 商品 id #}
+
+            for (var i = 0; i < price.length; i++) {
+                {# substring(0,1) 切片 #}
+                price1 = parseFloat(price[i].innerText) * count[i].value;
+                Col07[i].innerText = price1.toFixed(1) + '元'
+            }
+            {#时时结算#}
+            total()
+        });
+
+        {#结算总价,看不懂的话可以用小计的循环方法#}
+        function total() {
+            total_count = 0;
+            total_price = 0;
+            num = 0;
+
+
+            $('.cart_list_td').find(':checked').parents('ul').each(function () {
+
+                {#获取商品的数目和小计#}
+                count = $(this).find('.num_add').find('input').val();
+                amount = $(this).children('.col07').text();
+                goods_id = $(this).children('.clearfix').context.id;
+
+                num += 1;
+
+                {#累加计算商品的总件数和总价格#}
+                count = parseInt(count);
+                amount = parseFloat(amount);
+                total_count += count;
+                total_price += amount
+            });
+
+            {#设置被选中的商品的总件数和总价格 保留2位小数#}
+            $('.settlements').find('em').text(total_price.toFixed(2));
+            $('.settlements').find('b').text(total_count);
+            $('.total_count').find('b').text(total_count);
+
+            {#选择框是否全没选和全选，修改全选状态#}
+            {#获取ul数量 -2 开头和结尾不是#}
+            num1 = $('body ul').length - 2;
+
+            {#全选关联选择按钮#}
+            if (num == num1) {
+                $('.quan').prop("checked", "checked")
+             } else {
+                $('.quan').removeAttr('checked');
+
+             }
+
+        }
+
+        {#删除#}
+        // 删除购物车中的记录
+        $('.cart_list_td').children('.col08').children('a').click(function () {
+            // 获取对应商品的id
+            good_id = $(this).parents('ul').attr('id');
+
+            csrf = $('input[name="csrfmiddlewaretoken"]').val();
+
+            // 获取商品所在的ul
+            good_ul = $(this).parents('ul');
+            // 修改后端
+            $.ajax({
+                url: '/cart/change_del_goods/',
+                type: 'POST',
+                data: {'good_id': good_id},
+                dataType: 'json',
+                headers: {'X-CSRFToken': csrf},
+                success: function (data) {
+                    if (data.code == '200') {
+                        good_ul.remove();
+                        {#刷新价格#}
+                        total();
+
+                    }
+
+                }
+            })
+
+            });
+
+
+       {#提交订单结算#}
+            function jieshuan() {
+                csrf = $('input[name="csrfmiddlewaretoken"]').val();
+
+                if ($('ul').length > 2) {
+                    {#ajax 传数组有问题，这里用字符串格式#}
+                    goods_id_str = '[';
+
+                    $('.cart_list_td').find(':checked').parents('ul').each(function () {
+
+                        goods_id = $(this).children('.clearfix').context.id;
+                        goods_id_str += goods_id;
+                        goods_id_str += ','
+
+                    });
+                    goods_id_str += ']';
+
+                    // 数据发送到后端
+                    console.log(goods_id_str);
+                    $.ajax({
+                        url: '/cart/is_select/',
+                        type: 'POST',
+                        data: {'goods_list_str': goods_id_str},
+                        datatype: 'json',
+                        traditional: true,
+                        headers: {'X-CSRFToken': csrf},
+                        success: function (data) {
+                            if (data.code == 200) {
+                                window.location.href = '/order/place_order/'
+                            }
+                        }
+
+
+                    })
+                }else {
+                    alert('购物车没有商品，加入商品后再结算。')
+                }
+            }
+    </script>
+
+
+{% endblock %}

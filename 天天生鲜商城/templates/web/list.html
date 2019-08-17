@@ -1,0 +1,155 @@
+
+{% extends  'web/base_main.html' %}
+
+{% block ticle %}
+天天生鲜-商品列表
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul class="subnav">
+					<li><a href="{% url 'goods:list' 0 1 1 %}" class="fruit">新鲜水果</a></li>
+					<li><a href="{% url 'goods:list' 0 2 1 %}" class="seafood">海鲜水产</a></li>
+					<li><a href="{% url 'goods:list' 0 3 1 %}" class="meet">猪牛羊肉</a></li>
+					<li><a href="{% url 'goods:list' 0 4 1 %}" class="egg">禽类蛋品</a></li>
+					<li><a href="{% url 'goods:list' 0 5 1 %}" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="{% url 'goods:list' 0 6 1 %}" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="{% url 'user:index' %}">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="{% url 'goods:list' 0 0 1 %}">全部商品</a></li>
+				<li class="interval">|</li>
+				<li><a href=""></a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="{% url 'goods:list' 0 0 1 %}">全部分类</a>
+		<span>></span>
+		<a href="#">
+            {% if type == 0 %}
+                全部商品
+            {% elif  goods_category %}
+                {{ goods_category }}
+            {% else %}
+                {{ type }}
+            {% endif %}
+        </a>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+                    {% for goods in goods_new %}
+					<li>
+						<a href="/goods/goods_detail/{{ goods.id }}/"><img src="{{ goods.goods_front_image }}"></a>
+						<h4><a href="/goods/goods_detail/{{ goods.id }}/">{{ goods.name }}</a></h4>
+						<div class="prize">￥{{ goods.shop_price }}</div>
+					</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<div class="sort_bar">
+				<a href="{% url 'goods:list' 0 type 1 %}" title="默认排序" >默认</a>
+				<a href="{% url 'goods:list' 1 type 1 %}" title="价格升序">价格∧</a>
+				<a href="{% url 'goods:list' 2 type 1 %}" title="价格降序">价格∨</a>
+			</div>
+
+			<ul class="goods_type_list clearfix">
+            {% if goods_list %}
+                {% for goods in goods_list %}
+				<li>
+					<a href="/goods/goods_detail/{{ goods.id }}/"><img src="{{ goods.goods_front_image }}"></a>
+					<h4><a href="detail.html">{{ goods.name }}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{ goods.shop_price }}</span>
+						<span class="unit">{{ goods.shop_price }}/{{ goods.market_price }}g</span>
+						<a onclick="add_cart({{ goods.id }});" class="add_goods" title="加入购物车"></a>
+					</div>
+				</li>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center">查无类似的商品</div>
+            {% endif %}
+            </ul>
+
+            <div class="pagenation">
+				<a href="{% url 'goods:list'  sort type page_up %}"><上一页</a>
+                {% for num in page1 %}
+                    {% if num == page %}
+                        <a href="{% url 'goods:list' sort type num %}" class="active" >{{ num }}</a>
+                    {% else %}
+                        <a href="{% url 'goods:list' sort type num %}" >{{ num }}</a>
+                    {% endif %}
+				{% endfor %}
+                <a href="{% url 'goods:list' sort type page_down %}">下一页></a>
+			</div>
+		</div>
+	</div>
+
+    <div class="popup_con">
+        <div class="popup">
+            <p>加入购物车成功！</p>
+        </div>
+        <div class="mask"></div>
+    </div>
+
+    <script>
+        $(function () {
+            sort_ = {{ sort }}
+            $('.sort_bar').find('a').eq(sort_).addClass('active');
+            console.log(sort_)
+        });
+
+
+        {#class="active"#}
+        {#一键加入购物车#}
+        function add_cart(goods_id) {
+
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+                url: '/cart/add_cart/',
+                type: 'POST',
+                data: {'goods_id': goods_id, 'goods_num': 1},
+                dataType: 'json',
+                headers: {'X-CSRFToken': csrf},
+                success: function (data) {
+                    if (data.code == '200') {
+                        s = '<a href="{% url 'cart:cart' %}" class="cart_name fl">我的购物车</a>'
+                        s += '<div class="goods_count fl cart_goods_num" id="show_count">' + data.cart_goods_num + '</div>'
+                        $('.guest_cart').html(s);
+
+
+
+                }
+            }
+        });
+
+        {#加入购物车弹窗#}
+        $('.popup_con').fadeIn('fast', function() {
+
+                setTimeout(function(){
+                    $('.popup_con').fadeOut('fast',function(){
+                    });
+                },500)
+
+            });
+        };
+
+
+    </script>
+
+{% endblock %}

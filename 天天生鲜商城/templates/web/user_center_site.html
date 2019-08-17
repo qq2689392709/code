@@ -1,0 +1,141 @@
+{% extends  'web/base_main.html' %}
+
+{% block ticle %}
+    天天生鲜-商品详情
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+            <h3>用户中心</h3>
+            <ul>
+                <li><a href="{% url 'order:user_center_info' %}">· 个人信息</a></li>
+                <li><a href="{% url 'order:user_center_order' %}">· 全部订单</a></li>
+                <li><a href="{% url 'order:user_center_site' %}" class="active">· 收货地址</a></li>
+            </ul>
+        </div>
+        <div class="right_content clearfix">
+            <h3 class="common_title2">收货地址</h3>
+            <div class="site_con">
+                <dl>
+                    <dt>当前地址：</dt>
+                    {% for user_address in user_addresses %}
+                        <dd id="{{ user_address.id }}" onclick="revamp({{ user_address.id }})" >
+                            <div style="display:inline-block;; width: 60%">{{ user_address.address }}
+                            （{{ user_address.signer_name }} 收）
+                                {{ user_address.signer_mobile }}</div>
+
+                            <div onclick="shanchu({{ user_address.id }})" style="display:inline-block;color:darkblue">删除</div>
+                        </dd>
+
+                    {% endfor %}
+                </dl>
+            </div>
+            <h3 class="common_title2">编辑地址</h3>
+            <div class="site_con">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input value="" class="id" style="display:none">
+                    <div class="form_group">
+                        <label>收件人：</label>
+                        <input type="text" name="signer_name" class="user">
+                        {{ form.errors.signer_name }}
+                    </div>
+                    <div class="form_group form_group2" style="display:inline">
+                        <div style="width: 50%;display:inline">
+                            <label>详细地址：</label>
+                            <textarea class="site_area dizhi" name="address"></textarea>
+                        </div>
+                        <div style="display:inline;float: right;width: 50%; position: absolute;">
+                            {{ form.errors.address }}
+                        </div>
+
+                    </div>
+                    <div class="form_group">
+                        <label>邮编：</label>
+                        <input type="text" name="signer_postcode" class="youbian">
+                    </div>
+                    <div class="form_group">
+                        <label>手机：</label>
+                        <input type="text" name="signer_mobile" class="shouji">
+                        {{ form.errors.signer_mobile }}
+                    </div>
+
+                    <input type="submit" name="" value="新增地址" class="info_submit">
+                    <input type="button" name="" value="确认修改" class="info_submit" onclick="xiugai()">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        form li{
+            color: red;
+        }
+
+    </style>
+    <script>
+
+        {#点击地址获取地址信息加载到编辑里面#}
+
+        function revamp(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            {#获取数据库信息加载到页面#}
+            $.ajax({
+                url: '/order/user_center_site/',
+                type: 'get',
+                data: {'id': id},
+                datatype: 'json',
+                headers: {'X-CSRFToken': csrf},
+                success: function (data) {
+                    if (data.code == 200) {
+                        $('.id').val(id);
+                        $('.user').val(data.data.signer_name);
+                        $('.dizhi').text(data.data.address);
+                        $('.youbian').val(data.data.signer_postcode);
+                        $('.shouji').val(data.data.signer_mobile)
+                    }
+                }
+            })
+        }
+
+        {#修改地址#}
+
+        function xiugai() {
+            var id1 = $('.id').val();
+            var user = $('.user').val();
+            var dizhi = $('.dizhi').val();
+            var youbian = $('.youbian').val();
+            var shouji = $('.shouji').val();
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+                url: '/order/user_center_site_alter/' + id1,
+                type: 'post',
+                data: {'signer_name': user, 'address': dizhi, 'signer_postcode': youbian, 'signer_mobile': shouji},
+                datatype: 'json',
+                headers: {'X-CSRFToken': csrf},
+                success: function (data) {
+                    window.location.reload()
+                }
+            })
+        }
+
+        {#删除地址#}
+        function shanchu(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+                url: '/order/user_center_site_alter/' + id,
+                type: 'delete',
+                data: {},
+                datatype: 'json',
+                headers: {'X-CSRFToken': csrf},
+                success: function (data) {
+                    $('#' + id).remove()
+
+                }
+            })
+        }
+    </script>
+
+{% endblock %}

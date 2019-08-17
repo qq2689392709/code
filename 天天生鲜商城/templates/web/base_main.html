@@ -1,0 +1,103 @@
+{% extends 'web/base.html' %}
+
+{% block extCss %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'web/css/reset.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'web/css/main.css' %}">
+{% endblock %}
+
+{% block extJs %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'web/js/jquery-1.12.4.min.js' %}"></script>
+    <script type="text/javascript">
+
+        {#获取用户 购物车商品数量 删除登录注册div#}
+        $.getJSON('/user/is_login/', function (data) {
+            if (data.code == 200) {
+                $('.login_info').css('display', 'block');
+                $('.login_info em').html(data.user);
+                $('.goods_count').html(data.goods_count);
+                $('.total_count em').html(data.goods_count);
+                $('.login_btn').remove();
+
+            } else {
+                {#获取用户失败，显示提示 购物车数量#}
+                $('.goods_count').html(data.goods_count);
+                $('.fixed').css({"display": "inline"})
+            }
+
+        });
+
+        function dianji() {
+            var search = $('.input_text').val()
+            window.location.href='/goods/list/0/'+search+'/1/'
+        }
+    </script>
+{% endblock %}
+
+{% block header %}
+    {% load static %}
+        {% csrf_token %}
+    <div class="header_con">
+        <div class="header">
+            <div class="welcome fl">欢迎来到天天生鲜!</div>
+            <div class="fixed" style="display:none;border-bottom-left-radius: 25px;border-bottom-right-radius: 25px;
+            height: 30px;background: #233;color: white;opacity: 0.4;position: fixed;top: 0;left: 40%;
+            text-align: center;line-height: 30px;">&nbsp;&nbsp;当前未登录，数据将保存本地，登录后可上传。</div>
+
+            <div class="fr">
+                <div class="login_info fl" style="display:none;">
+                    欢迎您：<em></em>
+                    <span>&nbsp;&nbsp;&nbsp;</span>
+                    <a href="{% url 'user:logout' %}" onClick="if(!confirm('是否确认退出？'))return false; ">退出登录</a>
+                    <span> </span>
+                    <span> </span>
+                </div>
+                <div class="login_btn fl">
+                    <a href="{% url 'user:login' %}">登录</a>
+                    <span>|</span>
+                    <a href="{% url 'user:register' %}">注册</a>
+                </div>
+                <div class="user_link fl">
+                    <span>|</span>
+                    <a href="{% url 'order:user_center_info' %}">用户中心</a>
+                    <span>|</span>
+                    <a href="{% url 'cart:cart' %}">我的购物车</a>
+                    <span>|</span>
+                    <a href="{% url 'order:user_center_order' %}">我的订单</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search_bar clearfix">
+        <a href="{% url 'user:index' %}" class="logo fl"><img src="{% static 'web/images/logo.png' %}"></a>
+        <div class="search_con fl">
+            <input type="text" class="input_text fl" name="" placeholder="搜索商品" value="{% if search %}{{ search }}{% endif %}">
+            <input type="button" class="input_btn fr" name="" onclick="dianji()" value="搜索">
+        </div>
+        <div class="guest_cart fr">
+            <a href="{% url 'cart:cart' %}" class="cart_name fl">我的购物车</a>
+            <div class="goods_count fl cart_goods_num" id="show_count"></div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block footer %}
+    <div class="footer no-mp">
+        <div class="foot_link">
+            <a href="#">关于我们</a>
+            <span>|</span>
+            <a href="#">联系我们</a>
+            <span>|</span>
+            <a href="#">招聘人才</a>
+            <span>|</span>
+            <a href="#">友情链接</a>
+        </div>
+        <p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+        <p>电话：010-****888 京ICP备*******8号</p>
+    </div>
+{% endblock %}
