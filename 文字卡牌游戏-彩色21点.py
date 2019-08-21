@@ -3,6 +3,7 @@ import math
 
 
 class ka_pai_21dian():
+    # 备份卡牌
     beifen = {'1.1': '\x1b[31m♥A\x1b[0m', '2.1': '\x1b[31m♥2\x1b[0m', '3.1': '\x1b[31m♥3\x1b[0m',
               '4.1': '\x1b[31m♥4\x1b[0m', '5.1': '\x1b[31m♥5\x1b[0m', '6.1': '\x1b[31m♥6\x1b[0m',
               '7.1': '\x1b[31m♥7\x1b[0m', '8.1': '\x1b[31m♥8\x1b[0m', '9.1': '\x1b[31m♥9\x1b[0m',
@@ -21,6 +22,7 @@ class ka_pai_21dian():
               '7.4': '\x1b[30m♣7\x1b[0m', '8.4': '\x1b[30m♣8\x1b[0m', '9.4': '\x1b[30m♣9\x1b[0m',
               '10.4': '\x1b[30m♣10\x1b[0m', '11.4': '\x1b[30m♣J\x1b[0m', '12.4': '\x1b[30m♣Q\x1b[0m',
               '13.4': '\x1b[30m♣K\x1b[0m'}
+    # 使用的卡牌 已被抽取的将删除
     ka_pai = {'1.1': '\x1b[31m♥A\x1b[0m', '2.1': '\x1b[31m♥2\x1b[0m', '3.1': '\x1b[31m♥3\x1b[0m',
               '4.1': '\x1b[31m♥4\x1b[0m', '5.1': '\x1b[31m♥5\x1b[0m', '6.1': '\x1b[31m♥6\x1b[0m',
               '7.1': '\x1b[31m♥7\x1b[0m', '8.1': '\x1b[31m♥8\x1b[0m', '9.1': '\x1b[31m♥9\x1b[0m',
@@ -39,14 +41,18 @@ class ka_pai_21dian():
               '7.4': '\x1b[30m♣7\x1b[0m', '8.4': '\x1b[30m♣8\x1b[0m', '9.4': '\x1b[30m♣9\x1b[0m',
               '10.4': '\x1b[30m♣10\x1b[0m', '11.4': '\x1b[30m♣J\x1b[0m', '12.4': '\x1b[30m♣Q\x1b[0m',
               '13.4': '\x1b[30m♣K\x1b[0m'}
+    # 人员列表
     player = []
+    # 1号玩家的手牌列表
     name1_pai = []
+    # 2号玩家的手牌列表
     name2_pai = []
     gai_lv = {}
     gai_lv2 = {}
     zhuang = 0
     xian = 0
     ping = 0
+
     # 模式选择
     def main(self):
         patterm = input("单人模式还是AI自动模式？ d/s")
@@ -64,14 +70,15 @@ class ka_pai_21dian():
         self.player.append(name1)
         self.player.append(name2)
         while True:
-            # 初始化
+            # 从备份卡牌里恢复已被删除的卡牌
             self.ka_pai.update(self.beifen)
+            # 初始化双方的手牌
             self.name1_pai = []
             self.name2_pai = []
 
-
             print("\033[1;0m游戏开始\033", name1, "vs", name2)
-            # 游戏开始，玩家1发牌
+            # 反正都是随机的就没有一人一人发了。。。
+            # 游戏开始，玩家1 先发牌
             score1 = self.play_AI(name1)
             print()
             # 玩家1结束后 玩家2开始
@@ -80,24 +87,25 @@ class ka_pai_21dian():
 
             # 谁赢了
             f = self.determine_winner(name1, name2, score1, score2)
-            # f = {name1:{score1:True},name2:{score2:True}}
+
             for i in f:
                 if i not in self.gai_lv.keys():
                     self.gai_lv[i] = 1
                 elif i in self.gai_lv.keys():
                     self.gai_lv[i] += 1
+
             # 多少点数获胜的概率
-            for key,value in self.gai_lv.items():
-                self.gai_lv2[key] = math.ceil(value/sum(self.gai_lv.values())*100)
-            print(dict(sorted(self.gai_lv2.items(), key=lambda x: x[1], reverse=True)))
-            print('赌：',self.xian,'庄：',self.zhuang,'平局：',self.ping)
+            for key, value in self.gai_lv.items():
+                self.gai_lv2[key] = math.ceil(value / sum(self.gai_lv.values()) * 100)
+            # 查看 AI 点数的概率
+            # print(dict(sorted(self.gai_lv2.items(), key=lambda x: x[1], reverse=True)))
+            print('赌：', self.xian, '庄：', self.zhuang, '平局：', self.ping)
 
             go_no = input("\033[34m你想再玩一次吗? 回车继续/no \n")
             if go_no == "no":
                 break
 
-
-    # AI 单人模式
+    # AI 单人模式,AI 先抽牌但不显示什么牌，只显示抽了几次
     def ai_mode(self):
         name1 = input("玩家1的名字:")
         name2 = 'AI'
@@ -118,8 +126,6 @@ class ka_pai_21dian():
             go_no = input("\033[34m你想再玩一次吗? 回车继续/no\033[0m \n")
             if go_no == "no":
                 break
-
-
 
     # 玩家
     def play_turn(self, name):
@@ -162,13 +168,13 @@ class ka_pai_21dian():
                     print("\033[31m爆点了！\033[0m")
                     return '爆'
 
-    # AI
+    # AI 抽卡
     def play_AI(self, name):
         print("==========[ \033[1;0m当前玩家:\033[0m", " \033[1;34m{}\033[0m ]==========".format(name))
         num = 0
         while True:
             num += self.deal_card(name)
-            # 现卡牌 里加起来不超过21的牌
+            # 查询现手牌 里加起来不超过21的牌
             ok = []
             for ka in self.ka_pai.keys():
                 if num + int(eval(ka)) <= 21:
@@ -177,18 +183,22 @@ class ka_pai_21dian():
             # AI 抽卡概率，安全的卡/牌库*100 向上取整
             AI_card = math.ceil(len(ok) / len(self.ka_pai) * 100)
             # print('点数：', num, '概率：', AI_card)
-            if num <= 21:
-                # 随机概率抽卡
-                if AI_card > 50:
+            # 如果小于21点判断是否要抽卡
+            if num < 21:
+                # 点数小于16 或者 高于50% AI继续抽卡
+                if num < 16 or AI_card > 50:
                     pass
                 else:
                     return num
+
+            # 超过21点 判断有没有 A，有的话修改点数
             elif num > 21:
-                # 超过21点 判断有没有 A
                 if int(1) in self.name2_pai:
+                    # 修改已被使用过的A牌
                     self.name2_pai.remove(1)
                     self.name2_pai.append('1')
                     num -= 10
+                # 如果没有A牌，AI爆点了
                 else:
                     return '爆'
 
@@ -203,7 +213,7 @@ class ka_pai_21dian():
             self.name1_pai.append(num)
         elif self.player.index(name) == 1:
             self.name2_pai.append(num)
-        # 删除牌库
+        # 删除牌库，以被抽取过的牌从牌库中删除
         self.ka_pai.pop(nums)
         # 打印结果
         self.print_card(name, nums)
@@ -239,7 +249,7 @@ class ka_pai_21dian():
         elif score1 < score2:
             print("\033[1;35m玩家", name2, "赢了!\033[0m")
             self.zhuang += 1
-        return score1,score2
+        return score1, score2
 
 
 if __name__ == "__main__":
