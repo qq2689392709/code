@@ -1,6 +1,6 @@
-import random  #导入随机模块
+import random  # 导入随机模块
 
-print("-"*15,"欢迎进入游戏世界","-"*15)#字符串拼接
+print("-" * 15, "欢迎进入游戏世界", "-" * 15)  # 字符串拼接
 print("""
                 *******************
                 **   猜拳，开始  **
@@ -10,16 +10,16 @@ ai1 = int(input("请选择对方角色（1：刘备 2：孙权 3：曹操）："
 me1 = input("请输入你的姓名：")
 if ai1 == 1:
     ai1 = "刘备"
-elif ai1 ==2:
+elif ai1 == 2:
     ai1 = "孙权"
 else:
     ai1 = "曹操"
-print("{}   VS   {}  对战\n".format(me1,ai1))
+print("{}   VS   {}  对战\n".format(me1, ai1))
 
 p = input("要开始吗？(y/n)")
-print()     #空一行
+print()  # 空一行
 
-if  p == "y":  #输入不是N
+if p == "y":  # 输入不是N
     # 猜拳判断
     def ran():
         ai_ran1 = random.randint(1, 3)
@@ -62,7 +62,7 @@ if  p == "y":  #输入不是N
         sun += 1  # 回合+1
 
         p1 = input("是否开始下一轮（y/n）：")
-        print()     #空一行
+        print()  # 空一行
 
         if p1 == "y":
             pass
