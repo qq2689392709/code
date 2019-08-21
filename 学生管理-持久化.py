@@ -2,7 +2,9 @@ import os
 import shutil
 import time
 
-
+'''
+学生信息保存，读取，修改当前工作路径，文件迁移
+'''
 class student():
     # 默认文件名
     name_ = '学生信息'
