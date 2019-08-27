@@ -59,10 +59,10 @@ class Police(Person):
     def aid(self):
         chose = r.choice([-3, -2, -1, 0, 1])
         if chose > 0:
-            self.life = self.life + 30
+            self.life += 30
             print("%s经过急救,伤情得到控制!继续参加战斗" % self.name)
         else:
-            self.life = self.life + 20
+            self.life += 20
             print("%s经过急救,伤情得到控制!继续参加战斗" % self.name)
 
 
@@ -111,10 +111,10 @@ class Is(Person):
     def aid(self):
         chose = r.choice([-1, 1])
         if chose >= 0:
-            self.life = self.life + 15
+            self.life += 15
             print("%s自行急救,伤情得到控制!继续攻击警察" % self.name)
         else:
-            self.life = self.life + 10
+            self.life += 10
             print("%s自行急救,伤情得到控制!继续攻击警察" % self.name)
 
 
