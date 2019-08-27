@@ -15,11 +15,13 @@
 - 范围提示
 - 可重复循环
 
-![猜数字](.\img\猜数字.png)
+![猜数字](./img/猜数字.png)
 
 
 
-<a href="#目录">跳转目录</a>
+
+
+<a href="#user-content-目录 ">跳转到目录</a>
 
 
 
@@ -37,7 +39,7 @@
 
 
 
-<a href="#目录">跳转目录</a>
+<a href="#user-content-目录 ">跳转到目录</a>
 
 
 
@@ -60,7 +62,7 @@
 
 
 
-<a href="#目录">跳转目录</a>
+<a href="#user-content-目录 ">跳转到目录</a>
 
 
 
@@ -73,7 +75,7 @@
 
 
 
-<a href="#目录">跳转目录</a>
+<a href="#user-content-目录 ">跳转到目录</a>
 
 
 
@@ -87,7 +89,7 @@
 
 
 
-<a href="#目录">跳转目录</a>
+<a href="#user-content-目录 ">跳转到目录</a>
 
 
 
@@ -109,6 +111,4 @@
 
 ![](.\img\21点 (1).png)
 
-
-
-<a href="#目录">跳转目录</a>
+<a href="#user-content-目录 ">跳转到目录</a>
