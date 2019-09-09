@@ -2,13 +2,7 @@ import random
 
 
 def win_or_lose(ai, user):
-    if ai == 1:
-        return '平' if user == 1 else '输' if user == 2 else '赢'
-    elif ai == 2:
-        return '平' if user == 2 else '输' if user == 3 else '赢'
-    elif ai == 3:
-        return '平' if user == 3 else '输' if user == 1 else '赢'
-
+    return '平' if ai == user else '赢' if ai == (user + 1) % 3 else '输'
 
 def main():
     mora = ['石头', '剪刀', '布']
@@ -18,6 +12,8 @@ def main():
     # 验证输入是否有效
     if user in mora + ['1', '2', '3']:
         user = int(user) if user.isdigit() else mora.index(user) + 1
+        # result = win_or_lose(ai, user)
+        # win_or_lose = lambda ai, user:'平' if ai == user else '赢' if ai == (user + 1) % 3 else '输'
         result = win_or_lose(ai, user)
 
         # 打印结果
